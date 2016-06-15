@@ -1,8 +1,2 @@
-AgileWorks API Server
+S3 uploader poc
 =====================
-
-## Restart Server
-
-```
-pm2 restart agileworks-api
-```
