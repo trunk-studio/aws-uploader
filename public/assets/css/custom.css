@@ -1,0 +1,109 @@
+/*
+@import url(https://fonts.googleapis.com/css?family=Cabin+Sketch);
+*/
+@import url(https://fonts.googleapis.com/css?family=Hammersmith+One);
+
+body {
+  background-color: #0c1116;
+  padding-top: 80px;
+}
+
+body::after {
+  content: "";
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  position: absolute;
+  z-index: -1;
+  background-image: url(/public/assets/images/cover-1.jpg);
+  opacity: 0.5;
+  background-size: cover;
+}
+
+nav.navbar {
+  background-color: rgba(0,0,0,.7);
+  box-shadow: 0 1px rgba(255,255,255,0.1);
+  min-height: 80px;
+}
+
+.navbar-brand {
+  padding: 10px;
+  font-size: 28px;
+  /* font-family: 'Cabin Sketch', cursive; */
+  font-family: 'Hammersmith One', sans-serif;
+}
+
+.navbar-brand img {
+  margin: 0 15px;
+}
+
+#navbar {
+  float: right;
+  padding-right: 30px;
+}
+
+.navbar-nav li {
+  padding: 10px 5px;
+}
+.navbar-nav li a {
+  font-size: 15px;
+}
+
+.iframe-wrapper {
+  position: fixed;
+  top: 80px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+}
+
+.iframe-wrapper iframe {
+  width: 100%;
+  height: 100%;
+}
+
+.promotion {
+  background: rgba(0,0,0,.8);
+  padding: 15px 50px 50px;
+  border-radius: 5px;
+  color: #999;
+  font-size: 13px;
+}
+
+.promotion h3 {
+  line-height: 200%;
+  font-family: Arial;
+  font-weight: bold;
+  color: #ffffff;
+  text-shadow: 2px 2px 2px #000;
+}
+
+.promotion p {
+  font-family: sans-serif;
+  font-size: 13px;
+  color: #ccc;
+  letter-spacing: .5px;
+  line-height: 150%;
+}
+
+.promotion ul li {
+  color: #eee;
+  font-size: 13px;
+  line-height: 150%;
+  letter-spacing: .5px;
+}
+
+.promotion a {
+  color: #fff;
+}
+
+.copyright {
+  font-size: 13px;
+  font-family: Georgia;
+  color: #ccc;
+  margin: 20px 0;
+  text-align: center;
+  text-shadow: 0px 0px 2px #000;
+}

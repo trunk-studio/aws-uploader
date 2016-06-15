@@ -1,0 +1,41 @@
+extends ../layout
+
+
+block body
+  #home.container(style='max-width:800px;margin-top:100px;')
+    .row
+      .col-sm-4
+      .col-sm-8
+        .promotion
+          
+          #fine-uploader
+
+          
+
+  script(type='text/javascript').
+    var uploader = new qq.s3.FineUploader({
+        debug: true,
+        element: document.getElementById('fine-uploader'),
+        request: {
+            endpoint: 'media.trunksys.com.s3.amazonaws.com',
+            accessKey: '#{accessKey}'
+        },
+        signature: {
+            endpoint: '/s3/signature'
+        },
+        uploadSuccess: {
+            endpoint: '/s3/success'
+        },
+        iframeSupport: {
+            localBlankPagePath: '/success.html'
+        },
+        retry: {
+           enableAuto: true // defaults to false
+        },
+        deleteFile: {
+            enabled: true,
+            endpoint: '/s3handler'
+        }
+    });
+    
+  
