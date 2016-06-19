@@ -1,41 +1,68 @@
 extends ../layout
 
-
 block body
-  #home.container(style='max-width:800px;margin-top:100px;')
-    .row
-      .col-sm-4
-      .col-sm-8
-        .promotion
-          
-          #fine-uploader
-
-          
+  .container
+    #fine-uploader
 
   script(type='text/javascript').
+
+    var uploaderParams = {
+      custmerId: '14057',
+      filetype: 'video',
+      objectId: 'JojSDTAroX_en',
+      fileKeyId: '994E6240-3725-4FD0-BF2F-20058157938E',
+      extAllow: 'mpg,wmv,avi,mp4,mts,mov,m2p,dat,mkv,m4v,3gp,flv,mpeg,webm',
+      amountAllow: 1,
+      sizeLimit: 2147483648,
+      lang: 'en',
+      resumeTime: 5,
+      resumeInterval: 10,
+      cdnUrl: 'd1owool32s2u8a.cloudfront.net',
+      pipelineId: '1462358425462-kxvzpj',
+      resolutionKind: 480,
+      presetId: '1465455390986-0t1jc6',
+      resolutionKind2: 720,
+      presetId2: '1465455363821-ymekw1'
+    };
+
     var uploader = new qq.s3.FineUploader({
         debug: true,
         element: document.getElementById('fine-uploader'),
         request: {
-            endpoint: 'media.trunksys.com.s3.amazonaws.com',
+            endpoint: 'emvpdev.s3.amazonaws.com',
             accessKey: '#{accessKey}'
         },
         signature: {
             endpoint: '/s3/signature'
         },
-        uploadSuccess: {
-            endpoint: '/s3/success'
-        },
-        iframeSupport: {
-            localBlankPagePath: '/success.html'
+        objectProperties: {
+            key: function(fileId) {
+
+                var filename = uploader.getName(fileId);
+                var uuid = uploader.getUuid(fileId);
+                var ext = filename.substr(filename.lastIndexOf('.') + 1);
+
+                return 'emvpupload/a' + uploaderParams.custmerId + '/' + uploaderParams.fileKeyId + '/en/raw.' + ext;
+            }
         },
         retry: {
-           enableAuto: true // defaults to false
+           enableAuto: true
         },
-        deleteFile: {
-            enabled: true,
-            endpoint: '/s3handler'
+        multiple: uploaderParams.amountAllow > 1,
+        validation: {
+            allowedExtensions: uploaderParams.extAllow.split(','),
+            sizeLimit: uploaderParams.sizeLimit
+        },
+        callbacks: {
+            onUpload: function(id, name) {
+                console.log(id);
+                console.log(name);
+            },
+            onComplete: function(id, name, responseJSON, xhr) {
+                console.log(id);
+                console.log(name);
+                console.log(responseJSON);
+            }
         }
     });
-    
-  
+

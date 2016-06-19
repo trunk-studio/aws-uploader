@@ -1,17 +1,11 @@
 doctype html
 html
   head
-    
     meta(charset='utf-8')
-    link(rel="stylesheet", href="/public/assets/css/bootstrap.min.css")
-    link(rel="stylesheet", href="/public/assets/css/custom.css")      
-      
-    
-    script(src='/public/assets/js/jquery-2.2.1.min.js')
-    
-    link(rel="stylesheet", href="/public/assets/fineuploader/fine-uploader.css")    
-    script(src='/public/assets/fineuploader/s3.jquery.fine-uploader.js')
-    
+    meta(name='viewport', content='width=device-width, initial-scale=1')
+    script(src='//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.2/jquery.min.js')
+    link(rel='stylesheet', href='//cdnjs.cloudflare.com/ajax/libs/file-uploader/5.10.0/all.fine-uploader/fine-uploader-new.min.css')
+    script(src='//cdnjs.cloudflare.com/ajax/libs/file-uploader/5.10.0/s3.jquery.fine-uploader/s3.jquery.fine-uploader.min.js')
     script#qq-template(type='text/template').
       <div class="qq-uploader-selector qq-uploader" qq-drop-area-text="Drop files here">
           <div class="qq-total-progress-bar-container-selector qq-total-progress-bar-container">
@@ -69,8 +63,5 @@ html
               </div>
           </dialog>
       </div>
-  
-      
   body
     block body
-  

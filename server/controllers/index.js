@@ -44,7 +44,8 @@ export default class Routes {
 
       const fileName = params.conditions[5]['x-amz-meta-qqfilename'];
       const fileType = params.conditions[2]['Content-Type'];
-      let S3_BUCKET = params.conditions[1]['bucket']
+      let S3_BUCKET = params.conditions[1]['bucket'];
+
       const s3Params = {
         Bucket: S3_BUCKET,
         Key: fileName,
@@ -57,7 +58,7 @@ export default class Routes {
       var hmac = crypto.createHmac("sha1", appConfig.secretAccessKey);
 
       var hash2 = hmac.update(policy);
-	    var signature = hmac.digest("base64");
+      var signature = hmac.digest("base64");
 
       s3.getSignedUrl('putObject', s3Params, (err, data) => {
         if(err){
@@ -72,10 +73,6 @@ export default class Routes {
         ctx.body = JSON.stringify(returnData)
       });
     });
-
-
-
-
 
     app.use(publicRoute.middleware())
 

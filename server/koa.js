@@ -36,13 +36,11 @@ global.fs = fs;
 const {environment} = appConfig;
 const app = new koa();
 
-
 // do not use this secret for production
 const secret = config.secret
 
 app.use(convert(cors()));
 app.use(koaBodyParser());
-
 
 // setup rest models
 global.models = (new Models()).getDb();
@@ -51,10 +49,8 @@ app.use(convert(responseTime()));
 app.use(logger());
 
 // sessions
-
 app.keys = ['your-session-secret']
 app.use(convert(session()))
-
 
 require('./auth')
 app.use(convert(passport.initialize()))
@@ -64,7 +60,6 @@ if (environment === 'production') {
   // set debug environment to `koa` only
   // must be set programmaticaly for windows
   debug.enable('koa,error');
-
 }
 
 if (environment === 'development') {
