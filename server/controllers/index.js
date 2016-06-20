@@ -26,7 +26,7 @@ export default class Routes {
     });
 
     publicRoute.get('/s3/upload', function(ctx){
-      ctx.render('s3/upload.jade', {accessKey: appConfig.accessKey});
+      ctx.render('s3/upload', {accessKey: appConfig.accessKey});
     });
 
     publicRoute.get('/lambda/echo', async (ctx) => {
@@ -43,7 +43,7 @@ export default class Routes {
         ctx.body = { error: e };
       }
     });
-    
+
     publicRoute.post('/lambda/signature', async (ctx) => {
       try {
         let res = await fetch(appConfig.lambdaApiEndpoint, { method: 'POST', body: JSON.stringify({ operation: 'signature', payload: ctx.request.body })});

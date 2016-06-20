@@ -24,7 +24,7 @@ import convert from 'koa-convert';
 
 import session from 'koa-generic-session';
 import passport from 'koa-passport';
-import jade from 'koa-jade-render';
+import Pug from 'koa-pug';
 import cors from 'koa-cors';
 
 global.appConfig = config;
@@ -71,7 +71,14 @@ if (environment === 'development') {
 
 }
 
-app.use(jade(path.join(__dirname, 'views'), {debug: true, pretty: true}));
+new Pug({
+  app: app,
+  viewPath: path.join(__dirname, 'views'),
+  debug: true,
+  pretty: true
+})
+
+// app.use(jade(path.join(__dirname, 'views'), {debug: true, pretty: true}));
 
 
 app.use(convert(mount('/public/assets/css', staticCache(path.join(__dirname, '../public/assets/css/'), {maxAge: 30 * 24 * 60 * 60}))));

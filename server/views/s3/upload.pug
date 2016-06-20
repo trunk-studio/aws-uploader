@@ -124,7 +124,7 @@ block body
                     .done(function() {
                         alert('開始轉檔');
                     });
-    
+
                     var callbackParams = {
                         fileKeyId: uploaderParams.fileKeyId,
                         objectId: uploaderParams.objectId,
@@ -133,7 +133,7 @@ block body
                         fileSize: uploader.getSize(id),
                         isConverted: null,
                     };
-    
+
                     $('#resultsContainer').text(JSON.stringify(callbackParams, null, 2));
                 }
                 else {
@@ -142,4 +142,3 @@ block body
             }
         }
     });
-
