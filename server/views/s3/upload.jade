@@ -2,27 +2,60 @@ extends ../layout
 
 block body
   .container
+    .section-title
+      h1 S3 File Uploader Demo for StrategicSale
+
+    h3 Data Set for Video
+    pre#paramsMonitor
+
     #fine-uploader
+
+    h3 Results
+    pre#resultsContainer
+
+    h3 Tests
+    button#echo Echo Test
 
   script(type='text/javascript').
 
+    $(function() {
+
+        $('#paramsMonitor').text(JSON.stringify(uploaderParams, null, 2));
+
+        $('#echo').click(function() {
+            $.getJSON('/lambda/echo', function(data) {
+                alert(JSON.stringify(data, null, 2));
+            });
+        });
+    });
+
+    var generateUUID = function() {
+        var d = new Date().getTime();
+        var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            var r = (d + Math.random() * 16) % 16 | 0;
+            d = Math.floor(d / 16);
+            return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+        });
+        return uuid;
+    };
+
     var uploaderParams = {
-      custmerId: '14057',
-      filetype: 'video',
-      objectId: 'JojSDTAroX_en',
-      fileKeyId: '994E6240-3725-4FD0-BF2F-20058157938E',
-      extAllow: 'mpg,wmv,avi,mp4,mts,mov,m2p,dat,mkv,m4v,3gp,flv,mpeg,webm',
-      amountAllow: 1,
-      sizeLimit: 2147483648,
-      lang: 'en',
-      resumeTime: 5,
-      resumeInterval: 10,
-      cdnUrl: 'd1owool32s2u8a.cloudfront.net',
-      pipelineId: '1462358425462-kxvzpj',
-      resolutionKind: 480,
-      presetId: '1465455390986-0t1jc6',
-      resolutionKind2: 720,
-      presetId2: '1465455363821-ymekw1'
+        custmerId: '14057',
+        filetype: 'video',
+        objectId: null,
+        fileKeyId: null, //generateUUID(),
+        extAllow: 'mpg,wmv,avi,mp4,mts,mov,m2p,dat,mkv,m4v,3gp,flv,mpeg,webm',
+        amountAllow: 1,
+        sizeLimit: 2147483648,
+        lang: 'en',
+        resumeTime: 5,
+        resumeInterval: 10,
+        cdnUrl: 'dq8zej8azrytq.cloudfront.net',
+        pipelineId: '1466398065116-t4p8z6', //Fourtest_V: 1462358425462-kxvzpj
+        resolutionKind: 480,
+        presetId: '1465455390986-0t1jc6',
+        resolutionKind2: 720,
+        presetId2: '1465455363821-ymekw1'
     };
 
     var uploader = new qq.s3.FineUploader({
@@ -42,11 +75,15 @@ block body
                 var uuid = uploader.getUuid(fileId);
                 var ext = filename.substr(filename.lastIndexOf('.') + 1);
 
-                return 'emvpupload/a' + uploaderParams.custmerId + '/' + uploaderParams.fileKeyId + '/en/raw.' + ext;
+                uploaderParams.fileKeyId = uuid;
+                //uploaderParams.objectId = '';
+                //TODO: re-render uploaderParams
+
+                return 'emvpupload/a' + uploaderParams.custmerId + '/' +  uploaderParams.fileKeyId + '/en/raw.' + ext;
             }
         },
         retry: {
-           enableAuto: true
+            enableAuto: true
         },
         multiple: uploaderParams.amountAllow > 1,
         validation: {
@@ -62,6 +99,40 @@ block body
                 console.log(id);
                 console.log(name);
                 console.log(responseJSON);
+                console.log(uploader.getEndpoint(id));
+
+                //TODO: Call lambda to invoke transcoder
+                
+                $.ajax({
+                    url: '/lambda/transcoder',
+                    method: 'POST',
+                    data: {
+                        Input: {
+                            Key: uploader.getKey(id)
+                        },
+                        PipelineId: '1462358425462-kxvzpj',
+                        OutputKeyPrefix: 'emvpcontent/',
+                        Outputs: [{
+                            Key: 'emvpcontent/a' + uploaderParams.custmerId + '/' +  uploaderParams.fileKeyId + '/en/raw.mp4',
+                            PresetId: '1465455390986-0t1jc6',
+                        }]
+                    },
+                    dataType: 'json'
+                })
+                .done(function() {
+                    alert('done');
+                });
+
+                var callbackParams = {
+                    fileKeyId: uploaderParams.fileKeyId,
+                    objectId: uploaderParams.objectId,
+                    createdAt: new Date(),
+                    fileName: name,
+                    fileSize: uploader.getSize(id),
+                    isConverted: null,
+                };
+
+                $('#resultsContainer').text(JSON.stringify(callbackParams, null, 2));
             }
         }
     });

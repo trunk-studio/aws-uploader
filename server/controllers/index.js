@@ -1,8 +1,7 @@
-import mainController from './main';
-
 import Router from 'koa-router';
 import fs from 'fs';
 import path from 'path';
+import fetch from 'node-fetch';
 
 var aws = require('aws-sdk');
 var crypto = require("crypto");
@@ -16,25 +15,30 @@ export default class Routes {
     // this.authController = new AuthController(passport);
     // this.couponController = new CouponController();
     this.passport = passport;
-
   }
 
   setupPublicRoute() {
     var app = this.app;
-    var publicRoute = new Router()
-
+    var publicRoute = new Router();
 
     publicRoute.get('/', function(ctx){
       ctx.redirect('/s3/upload');
     });
-
-
 
     publicRoute.get('/s3/upload', function(ctx){
       console.log("=== /s3/upload ===", appConfig.accessKey);
       ctx.render('s3/upload.jade', {accessKey: appConfig.accessKey});
     });
 
+    publicRoute.get('/lambda/echo', async (ctx) => {
+      let res = await fetch(appConfig.lambdaApiEndpoint, { method: 'POST', body: '{"operation":"echo", "payload":"Hello World"}' });
+      ctx.body = await res.json();
+    });
+
+    publicRoute.post('/lambda/transcoder', async (ctx) => {
+      let res = await fetch(appConfig.lambdaApiEndpoint, { method: 'POST', body: ctx.request.body });
+      ctx.body = await res.json();
+    });
 
     publicRoute.post('/s3/signature', function(ctx){
       let params = ctx.request.body;
@@ -44,7 +48,7 @@ export default class Routes {
 
       const fileName = params.conditions[5]['x-amz-meta-qqfilename'];
       const fileType = params.conditions[2]['Content-Type'];
-      let S3_BUCKET = params.conditions[1]['bucket'];
+      const S3_BUCKET = params.conditions[1]['bucket'];
 
       const s3Params = {
         Bucket: S3_BUCKET,
@@ -93,6 +97,4 @@ export default class Routes {
   setupAppRoute() {
     this.app.use(this.router.middleware())
   }
-
-
 }
