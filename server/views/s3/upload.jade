@@ -51,7 +51,7 @@ block body
         resumeTime: 5,
         resumeInterval: 10,
         cdnUrl: 'dq8zej8azrytq.cloudfront.net',
-        pipelineId: '1466398065116-t4p8z6', //Fourtest_V: 1462358425462-kxvzpj
+        pipelineId: '1462358425462-kxvzpj',
         resolutionKind: 480,
         presetId: '1465455390986-0t1jc6',
         resolutionKind2: 720,
@@ -66,7 +66,7 @@ block body
             accessKey: '#{accessKey}'
         },
         signature: {
-            endpoint: '/lambda/signaturea'
+            endpoint: '/lambda/signature'
         },
         objectProperties: {
             key: function(fileId) {
@@ -79,7 +79,7 @@ block body
                 //uploaderParams.objectId = '';
                 //TODO: re-render uploaderParams
 
-                return 'emvpupload/a' + uploaderParams.custmerId + '/' +  uploaderParams.fileKeyId + '/en/raw.' + ext;
+                return 'emvpupload/a' + uploaderParams.custmerId + '/v/' +  uploaderParams.fileKeyId + '/en/raw.' + ext;
             }
         },
         retry: {
@@ -109,11 +109,14 @@ block body
                             Input: {
                                 Key: uploader.getKey(id)
                             },
-                            PipelineId: '1462358425462-kxvzpj',
+                            PipelineId: uploaderParams.pipelineId,
                             OutputKeyPrefix: 'emvpcontent/',
                             Outputs: [{
-                                Key: 'emvpcontent/a' + uploaderParams.custmerId + '/' +  uploaderParams.fileKeyId + '/en/raw.mp4',
-                                PresetId: '1465455390986-0t1jc6',
+                                Key: 'a' + uploaderParams.custmerId + '/v/' +  uploaderParams.fileKeyId + '/' + uploaderParams.resolutionKind + '/en/raw.mp4',
+                                PresetId: uploaderParams.presetId,
+                            }, {
+                                Key: 'a' + uploaderParams.custmerId + '/v/' +  uploaderParams.fileKeyId + '/' + uploaderParams.resolutionKind2 + '/en/raw.mp4',
+                                PresetId: uploaderParams.presetId2,
                             }]
                         },
                         dataType: 'json'
@@ -136,8 +139,6 @@ block body
                 else {
                     alert(responseJSON.error);
                 }
-                
-
             }
         }
     });
