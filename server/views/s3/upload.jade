@@ -66,7 +66,7 @@ block body
             accessKey: '#{accessKey}'
         },
         signature: {
-            endpoint: '/s3/signature'
+            endpoint: '/lambda/signaturea'
         },
         objectProperties: {
             key: function(fileId) {
@@ -92,47 +92,52 @@ block body
         },
         callbacks: {
             onUpload: function(id, name) {
-                console.log(id);
-                console.log(name);
+                // console.log(id);
+                // console.log(name);
             },
             onComplete: function(id, name, responseJSON, xhr) {
-                console.log(id);
-                console.log(name);
-                console.log(responseJSON);
-                console.log(uploader.getEndpoint(id));
+                // console.log(id);
+                // console.log(name);
+                // console.log(responseJSON);
+                // console.log(uploader.getEndpoint(id));
 
-                //TODO: Call lambda to invoke transcoder
-                
-                $.ajax({
-                    url: '/lambda/transcoder',
-                    method: 'POST',
-                    data: {
-                        Input: {
-                            Key: uploader.getKey(id)
+                if (responseJSON.success) {
+                    $.ajax({
+                        url: '/lambda/transcoder',
+                        method: 'POST',
+                        data: {
+                            Input: {
+                                Key: uploader.getKey(id)
+                            },
+                            PipelineId: '1462358425462-kxvzpj',
+                            OutputKeyPrefix: 'emvpcontent/',
+                            Outputs: [{
+                                Key: 'emvpcontent/a' + uploaderParams.custmerId + '/' +  uploaderParams.fileKeyId + '/en/raw.mp4',
+                                PresetId: '1465455390986-0t1jc6',
+                            }]
                         },
-                        PipelineId: '1462358425462-kxvzpj',
-                        OutputKeyPrefix: 'emvpcontent/',
-                        Outputs: [{
-                            Key: 'emvpcontent/a' + uploaderParams.custmerId + '/' +  uploaderParams.fileKeyId + '/en/raw.mp4',
-                            PresetId: '1465455390986-0t1jc6',
-                        }]
-                    },
-                    dataType: 'json'
-                })
-                .done(function() {
-                    alert('done');
-                });
+                        dataType: 'json'
+                    })
+                    .done(function() {
+                        alert('開始轉檔');
+                    });
+    
+                    var callbackParams = {
+                        fileKeyId: uploaderParams.fileKeyId,
+                        objectId: uploaderParams.objectId,
+                        createdAt: new Date(),
+                        fileName: name,
+                        fileSize: uploader.getSize(id),
+                        isConverted: null,
+                    };
+    
+                    $('#resultsContainer').text(JSON.stringify(callbackParams, null, 2));
+                }
+                else {
+                    alert(responseJSON.error);
+                }
+                
 
-                var callbackParams = {
-                    fileKeyId: uploaderParams.fileKeyId,
-                    objectId: uploaderParams.objectId,
-                    createdAt: new Date(),
-                    fileName: name,
-                    fileSize: uploader.getSize(id),
-                    isConverted: null,
-                };
-
-                $('#resultsContainer').text(JSON.stringify(callbackParams, null, 2));
             }
         }
     });

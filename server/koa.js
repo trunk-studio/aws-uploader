@@ -71,7 +71,7 @@ if (environment === 'development') {
 
 }
 
-app.use(jade(path.join(__dirname, 'views')));
+app.use(jade(path.join(__dirname, 'views'), {debug: true, pretty: true}));
 
 
 app.use(convert(mount('/public/assets/css', staticCache(path.join(__dirname, '../public/assets/css/'), {maxAge: 30 * 24 * 60 * 60}))));
