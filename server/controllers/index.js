@@ -2,6 +2,7 @@ import Router from 'koa-router';
 import fs from 'fs';
 import path from 'path';
 import fetch from 'node-fetch';
+import reportController from './report';
 
 var aws = require('aws-sdk');
 var crypto = require("crypto");
@@ -53,6 +54,8 @@ export default class Routes {
         ctx.body = { error: e };
       }
     });
+
+    publicRoute.post('/report', reportController.report);
 
     app.use(publicRoute.middleware())
 
