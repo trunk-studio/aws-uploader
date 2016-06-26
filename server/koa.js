@@ -75,14 +75,15 @@ new Pug({
   app: app,
   viewPath: path.join(__dirname, 'views'),
   debug: true,
-  pretty: true
+  pretty: true,
+  noCache: true
 })
 
 // app.use(jade(path.join(__dirname, 'views'), {debug: true, pretty: true}));
 
 
 app.use(convert(mount('/public/assets/css', staticCache(path.join(__dirname, '../public/assets/css/'), {maxAge: 30 * 24 * 60 * 60}))));
-app.use(convert(mount('/public/assets/js', staticCache(path.join(__dirname, '../public/assets/js/'), {maxAge: 30 * 24 * 60 * 60}))));
+app.use(convert(mount('/js', staticCache(path.join(__dirname, '../public/assets/js/'), {maxAge: 30 * 24 * 60 * 60}))));
 app.use(convert(mount('/public/assets/images', staticCache(path.join(__dirname, '../public/assets/images/'), {maxAge: 30 * 24 * 60 * 60}))));
 app.use(convert(mount('/public/assets/fineuploader', staticCache(path.join(__dirname, '../public/assets/fineuploader/'), {maxAge: 30 * 24 * 60 * 60}))));
 global.services = new Services();

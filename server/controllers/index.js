@@ -24,29 +24,15 @@ export default class Routes {
     publicRoute.get('/', function(ctx){
       ctx.redirect('/s3/upload');
     });
-
+    
     publicRoute.get('/s3/upload', function(ctx){
       ctx.render('s3/upload', {accessKey: appConfig.accessKey});
     });
-
-    publicRoute.get('/lambda/echo', async (ctx) => {
-      let res = await fetch(appConfig.lambdaApiEndpoint, { method: 'POST', body: '{"operation":"echo", "payload":"Hello World"}' });
-      ctx.body = await res.json();
-    });
-
-    publicRoute.post('/lambda/transcoder', async (ctx) => {
+    
+    publicRoute.post('/lambda/:operation', async (ctx) => {
       try {
-        let res = await fetch(appConfig.lambdaApiEndpoint, { method: 'POST', body: JSON.stringify({ operation: 'transcoder', payload: ctx.request.body })});
-        ctx.body = await res.json();
-      }
-      catch (e) {
-        ctx.body = { error: e };
-      }
-    });
-
-    publicRoute.post('/lambda/signature', async (ctx) => {
-      try {
-        let res = await fetch(appConfig.lambdaApiEndpoint, { method: 'POST', body: JSON.stringify({ operation: 'signature', payload: ctx.request.body })});
+        let {operation} = ctx.params;
+        let res = await fetch(appConfig.lambdaApiEndpoint, { method: 'POST', body: JSON.stringify({operation, payload: ctx.request.body })});
         ctx.body = await res.json();
       }
       catch (e) {

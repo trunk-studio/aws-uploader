@@ -5,11 +5,11 @@
   "main": "server/index.js",
   "scripts": {
     "start": "node server/",
+    "pm2-start": "pm2 start server/index.js --name 'poc'",
+    "pm2-restart": "pm2 restart poc",
     "test": "NODE_ENV=test ./node_modules/.bin/mocha --opts ./test/server/mocha.opts ./test/server/**/*.spec.js",
     "test-unit": "NODE_ENV=test ./node_modules/.bin/mocha --opts ./test/unit/mocha.opts ./test/unit/**/*.spec.js",
-    "start-prod": "NODE_ENV=production node server/",
-    "start-pm2": "NODE_ENV=production pm2 start server/ --name='agileworks-api'",
-    "restart-pm2": "pm2 restart agileworks-api"
+    "start-prod": "NODE_ENV=production node server/"
   },
   "license": "MIT",
   "dependencies": {

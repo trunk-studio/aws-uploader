@@ -14,131 +14,73 @@ block body
     pre#resultsContainer
 
     h3 Tests
-    button#echo Echo Test
+    button.btn.btn-default#echo Echo Test
 
+  script(type='text/javascript', src='/js/jquery.s3uploader.js')
+  script(type='text/javascript', src='/js/jquery.lambda6.js')
   script(type='text/javascript').
-
+    
     $(function() {
+
+        var AWS_ACCESS_KEY_ID = '#{accessKey}';
+
+        var uploaderParams = {
+            custmerId: '14057',
+            filetype: 'video',
+            objectId: null,
+            fileKeyId: null,
+            extAllow: 'mpg,wmv,avi,mp4,mts,mov,m2p,dat,mkv,m4v,3gp,flv,mpeg,webm',
+            amountAllow: 1,
+            sizeLimit: 2147483648,
+            lang: 'en',
+            resumeTime: 5,
+            resumeInterval: 10,
+            cdnUrl: 'dq8zej8azrytq.cloudfront.net',
+            pipelineId: '1462358425462-kxvzpj',
+            outputs: [{
+                presetId: '1465455390986-0t1jc6',
+                resolutionKind: 480
+            }, {
+                presetId: '1465455363821-ymekw1',
+                resolutionKind: 720
+            }]
+        };
 
         $('#paramsMonitor').text(JSON.stringify(uploaderParams, null, 2));
 
+        $('#fine-uploader').s3uploader({
+            debug: true,
+            accessKey: AWS_ACCESS_KEY_ID,
+            requestEndpoint: 'emvpdev.s3.amazonaws.com',
+            signatureEndpoint: '/lambda/signature',
+            uploaderParams: uploaderParams,
+            callbacks: {
+                onUploadSuccess: function(uploader, uploaderParams, callbackParams, responseJSON) {
+                    $('#resultsContainer').text(JSON.stringify(callbackParams, null, 2));
+                    // TODO: 呼叫後端將 callbackParams 回寫資料庫
+                },
+                onUploadError: function(uploader, uploaderParams, callbackParams, responseJSON) {
+                    // TODO: 上傳檔案時發生錯誤
+                    alert("上傳失敗" + responseJSON.error);
+                },
+                onTranscoderBegin: function(uploader, uploaderParams, callbackParams, responseJSON) {
+                    // TODO: 已進入影片轉檔程序、允許離開上傳畫面
+                    alert('開始轉檔');
+                }
+            }
+        });
+
+        // misc.
+
         $('#echo').click(function() {
-            $.getJSON('/lambda/echo', function(data) {
+            $.lambda6({
+                operation: 'echo',
+                payload: {
+                    message: 'Hello Uploader'
+                }
+            })
+            .done(function(data) {
                 alert(JSON.stringify(data, null, 2));
             });
         });
-    });
-
-    var generateUUID = function() {
-        var d = new Date().getTime();
-        var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-            var r = (d + Math.random() * 16) % 16 | 0;
-            d = Math.floor(d / 16);
-            return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-        });
-        return uuid;
-    };
-
-    var uploaderParams = {
-        custmerId: '14057',
-        filetype: 'video',
-        objectId: null,
-        fileKeyId: null, //generateUUID(),
-        extAllow: 'mpg,wmv,avi,mp4,mts,mov,m2p,dat,mkv,m4v,3gp,flv,mpeg,webm',
-        amountAllow: 1,
-        sizeLimit: 2147483648,
-        lang: 'en',
-        resumeTime: 5,
-        resumeInterval: 10,
-        cdnUrl: 'dq8zej8azrytq.cloudfront.net',
-        pipelineId: '1462358425462-kxvzpj',
-        resolutionKind: 480,
-        presetId: '1465455390986-0t1jc6',
-        resolutionKind2: 720,
-        presetId2: '1465455363821-ymekw1'
-    };
-
-    var uploader = new qq.s3.FineUploader({
-        debug: true,
-        element: document.getElementById('fine-uploader'),
-        request: {
-            endpoint: 'emvpdev.s3.amazonaws.com',
-            accessKey: '#{accessKey}'
-        },
-        signature: {
-            endpoint: '/lambda/signature'
-        },
-        objectProperties: {
-            key: function(fileId) {
-
-                var filename = uploader.getName(fileId);
-                var uuid = uploader.getUuid(fileId);
-                var ext = filename.substr(filename.lastIndexOf('.') + 1);
-
-                uploaderParams.fileKeyId = uuid;
-                //uploaderParams.objectId = '';
-                //TODO: re-render uploaderParams
-
-                return 'emvpupload/a' + uploaderParams.custmerId + '/v/' +  uploaderParams.fileKeyId + '/en/raw.' + ext;
-            }
-        },
-        retry: {
-            enableAuto: true
-        },
-        multiple: uploaderParams.amountAllow > 1,
-        validation: {
-            allowedExtensions: uploaderParams.extAllow.split(','),
-            sizeLimit: uploaderParams.sizeLimit
-        },
-        callbacks: {
-            onUpload: function(id, name) {
-                // console.log(id);
-                // console.log(name);
-            },
-            onComplete: function(id, name, responseJSON, xhr) {
-                // console.log(id);
-                // console.log(name);
-                // console.log(responseJSON);
-                // console.log(uploader.getEndpoint(id));
-
-                if (responseJSON.success) {
-                    $.ajax({
-                        url: '/lambda/transcoder',
-                        method: 'POST',
-                        data: {
-                            Input: {
-                                Key: uploader.getKey(id)
-                            },
-                            PipelineId: uploaderParams.pipelineId,
-                            OutputKeyPrefix: 'emvpcontent/',
-                            Outputs: [{
-                                Key: 'a' + uploaderParams.custmerId + '/v/' +  uploaderParams.fileKeyId + '/' + uploaderParams.resolutionKind + '/en/raw.mp4',
-                                PresetId: uploaderParams.presetId,
-                            }, {
-                                Key: 'a' + uploaderParams.custmerId + '/v/' +  uploaderParams.fileKeyId + '/' + uploaderParams.resolutionKind2 + '/en/raw.mp4',
-                                PresetId: uploaderParams.presetId2,
-                            }]
-                        },
-                        dataType: 'json'
-                    })
-                    .done(function() {
-                        alert('開始轉檔');
-                    });
-
-                    var callbackParams = {
-                        fileKeyId: uploaderParams.fileKeyId,
-                        objectId: uploaderParams.objectId,
-                        createdAt: new Date(),
-                        fileName: name,
-                        fileSize: uploader.getSize(id),
-                        isConverted: null,
-                    };
-
-                    $('#resultsContainer').text(JSON.stringify(callbackParams, null, 2));
-                }
-                else {
-                    alert(responseJSON.error);
-                }
-            }
-        }
     });
