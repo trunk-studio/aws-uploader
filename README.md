@@ -1,4 +1,125 @@
 S3 File Uploader Demo for StrategicSale
 ========================================
 
-http://emvpdev.trunksys.com:3001/s3/upload
+Demo Site
+
+http://emvpdev.trunksys.com:3001/
+
+## Server-side Implements
+
+後端程式需要提供 `/lambda/$operation` 的 POST 存取。
+
+* /lambda/echo
+* /lambda/transcoder
+* /lambda/signature
+
+將收到的 POST 資料轉送至 AWS Lambda API Server。
+
+參考範例（使用 curl 指令存取）
+
+```
+curl -H "Content-Type: application/json" -X POST -d "{\"operation\": \"echo\", \"payload\": \"Hello Lambda\"}" https://55z081wsq0.execute-api.ap-northeast-1.amazonaws.com/prod/s3upload-prod
+```
+
+參考範例（Node.js + Koa）
+
+```
+    // appConfig.lambdaApiEndpoint = https://55z081wsq0.execute-api.ap-northeast-1.amazonaws.com/prod/s3upload-prod
+    
+    publicRoute.post('/lambda/:operation', async (ctx) => {
+      try {
+        let {operation} = ctx.params;
+        let res = await fetch(appConfig.lambdaApiEndpoint, { method: 'POST', body: JSON.stringify({operation, payload: ctx.request.body })});
+        ctx.body = await res.json();
+      }
+      catch (e) {
+        ctx.body = { error: e };
+      }
+    });
+```
+
+## Front-end Implements
+
+必要的 JavaScript / CSS Library：
+
+* jQuery
+* Fine Uploader
+
+參考範例：
+
+```
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/file-uploader/5.10.0/all.fine-uploader/fine-uploader-new.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/file-uploader/5.10.0/s3.jquery.fine-uploader/s3.jquery.fine-uploader.min.js"></script>
+```
+
+加入以下 JavaScript 函式庫：
+
+* jquery.s3uploader.js
+* jquery.lambda6.js
+
+```
+<script type="text/javascript" src="https://raw.githubusercontent.com/trunk-studio/aws-uploader-poc/master/public/assets/js/jquery.s3uploader.js"></script>
+<script type="text/javascript" src="https://raw.githubusercontent.com/trunk-studio/aws-uploader-poc/master/public/assets/js/jquery.lambda6.js"></script>
+```
+
+在前端動態設定必要的 JS 參數。
+
+```
+var AWS_ACCESS_KEY_ID = 'AKIAJS4FV444UNYB5C4Q';
+      
+var uploaderParams = {
+    custmerId: '14057',
+    filetype: 'video',
+    objectId: null,
+    fileKeyId: null,
+    extAllow: 'mpg,wmv,avi,mp4,mts,mov,m2p,dat,mkv,m4v,3gp,flv,mpeg,webm',
+    amountAllow: 1,
+    sizeLimit: 2147483648,
+    lang: 'en',
+    resumeTime: 5,
+    resumeInterval: 10,
+    cdnUrl: 'dq8zej8azrytq.cloudfront.net',
+    pipelineId: '1462358425462-kxvzpj',
+    outputs: [{
+        presetId: '1465455390986-0t1jc6',
+        resolutionKind: 480
+    }, {
+        presetId: '1465455363821-ymekw1',
+        resolutionKind: 720
+    }]
+};
+```
+
+放置上傳檔案功能區塊（HTML)。
+
+```
+<div id="fine-uploader"></div>
+```
+
+呼叫 jQuery Plugins 函數 `$.s3uploader` 產生上傳功能。
+
+```
+$('#fine-uploader').s3uploader({
+    debug: true,
+    accessKey: AWS_ACCESS_KEY_ID,
+    requestEndpoint: 'emvpdev.s3.amazonaws.com',
+    signatureEndpoint: '/lambda/signature',
+    uploaderParams: uploaderParams,
+    callbacks: {
+        onUploadSuccess: function(uploader, uploaderParams, callbackParams, responseJSON) {
+            $('#resultsContainer').text(JSON.stringify(callbackParams, null, 2));
+            // TODO: 呼叫後端將 callbackParams 回寫資料庫
+        },
+        onUploadError: function(uploader, uploaderParams, callbackParams, responseJSON) {
+            // TODO: 上傳檔案時發生錯誤
+            alert("上傳失敗" + responseJSON.error);
+        },
+        onTranscoderBegin: function(uploader, uploaderParams, callbackParams, responseJSON) {
+            // TODO: 已進入影片轉檔程序、允許離開上傳畫面
+            alert('開始轉檔');
+        }
+    }
+});
+```

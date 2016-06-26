@@ -22,11 +22,12 @@ export default class Routes {
     var publicRoute = new Router();
 
     publicRoute.get('/', function(ctx){
-      ctx.redirect('/s3/upload');
+      //ctx.redirect('/s3/upload');
+      ctx.render('index', {});
     });
     
-    publicRoute.get('/s3/upload', function(ctx){
-      ctx.render('s3/upload', {accessKey: appConfig.accessKey});
+    publicRoute.get('/video', function(ctx){
+      ctx.render('video', {accessKey: appConfig.accessKey});
     });
     
     publicRoute.post('/lambda/:operation', async (ctx) => {
