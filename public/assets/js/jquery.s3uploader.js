@@ -17,8 +17,9 @@
             accessKey: '----',
             requestEndpoint: 'emvpdev.s3.amazonaws.com',
             signatureEndpoint: '/lambda/signature',
+            transcoderCallbackEndpoint: '',
             uploaderParams: {},
-            callbacks: {}
+            callbacks: {},
         }, options );
         
         var target = $(this);
@@ -95,16 +96,39 @@
                                 ThumbnailPattern: output.resolutionKind + '/' + uploaderParams.lang + '/' + uploaderParams.objectId + '-{count}'
                             });
                         }
+                        
+                        var outputKeyPrefix = 'emvpcontent/a' + uploaderParams.custmerId + '/v/' + uploaderParams.fileKeyId + '/';
 
+                        var cloudfrontBaseUrl = 'https://' + uploaderParams.cdnUrl + '/' + outputKeyPrefix;
+
+                        var videoUrl480 = cloudfrontBaseUrl + '480/' + uploaderParams.lang + '/' + uploaderParams.objectId + '.mp4';
+                        var videoUrl720 = cloudfrontBaseUrl + '720/' + uploaderParams.lang + '/' + uploaderParams.objectId + '.mp4';
+                        
                         $.lambda6({
                             operation: 'transcoder',
                             payload: {
                                 Input: {
                                     Key: uploader.getKey(id)
                                 },
+                                OutputKeyPrefix: outputKeyPrefix,
+                                Outputs: outputs,
+                                UserMetadata: {
+                                    "CallbackEndpoint": settings.transcoderCallbackEndpoint,
+                                    "CallbackParams": JSON.stringify({
+                                        fileKeyId: uploaderParams.fileKeyId,
+                                        objectId: uploaderParams.objectId,
+                                        isConverted: true,
+                                        videoUrl480: videoUrl480,
+                                        thumbnail480: '',
+                                        videoSize480: 0,
+                                        videoUrl720: videoUrl720,
+                                        thumbnail720: '',
+                                        videoSize720: 0,
+                                        videoDuration: 0,
+                                        lang: uploaderParams.lang
+                                    })
+                                },
                                 PipelineId: uploaderParams.pipelineId,
-                                OutputKeyPrefix: 'emvpcontent/a' + uploaderParams.custmerId + '/v/' + uploaderParams.fileKeyId + '/',
-                                Outputs: outputs
                             }
                         })
                         .done(function(data) {

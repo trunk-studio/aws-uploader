@@ -53,6 +53,7 @@ block body
             accessKey: AWS_ACCESS_KEY_ID,
             requestEndpoint: 'emvpdev.s3.amazonaws.com',
             signatureEndpoint: '/lambda/signature',
+            transcoderCallbackEndpoint: 'http://emvpdev.trunksys.com:3001/callback',
             uploaderParams: uploaderParams,
             callbacks: {
                 onUploadSuccess: function(uploader, uploaderParams, callbackParams, responseJSON) {
