@@ -6,6 +6,8 @@ import responseTime from 'koa-response-time';
 import logger from 'koa-logger';
 import koaBodyParser from 'koa-bodyparser';
 
+// should considering koa-better-body
+
 import bootstrap from './bootstrap';
 import config from './config/init';
 import Models from './models';
@@ -40,6 +42,8 @@ const app = new koa();
 const secret = config.secret
 
 app.use(convert(cors()));
+
+// body parser
 app.use(koaBodyParser());
 
 // setup rest models
@@ -77,7 +81,7 @@ new Pug({
   debug: true,
   pretty: true,
   noCache: true
-})
+});
 
 // app.use(jade(path.join(__dirname, 'views'), {debug: true, pretty: true}));
 
@@ -99,10 +103,8 @@ app.use(async function (ctx, next) {
   }
 });
 
-
 controllers.setupPublicRoute()
 controllers.setupAppRoute()
-
 
 var liftApp = async () => {
   try {

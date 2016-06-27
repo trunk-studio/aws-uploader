@@ -29,6 +29,11 @@ export default class Routes {
     publicRoute.get('/video', function(ctx){
       ctx.render('video', {accessKey: appConfig.accessKey});
     });
+
+    publicRoute.post('/callback', async (ctx) => {
+      console.log(ctx.request.body);
+      ctx.body = { result: true, callbackParams: ctx.request.body };
+    });
     
     publicRoute.post('/lambda/:operation', async (ctx) => {
       try {
