@@ -19,7 +19,7 @@
             signatureEndpoint: '/lambda/signature',
             transcoderCallbackEndpoint: '',
             uploaderParams: {},
-            callbacks: {},
+            callbacks: {}
         }, options );
         
         var target = $(this);
@@ -74,7 +74,7 @@
                         createdAt: new Date(),
                         fileName: name,
                         fileSize: uploader.getSize(id),
-                        isConverted: null,
+                        isConverted: false
                     };
 
                     if (responseJSON.success) {
@@ -104,6 +104,20 @@
                         var videoUrl480 = cloudfrontBaseUrl + '480/' + uploaderParams.lang + '/' + uploaderParams.objectId + '.mp4';
                         var videoUrl720 = cloudfrontBaseUrl + '720/' + uploaderParams.lang + '/' + uploaderParams.objectId + '.mp4';
                         
+                        var callbackParamsString = window.btoa(JSON.stringify({
+                            fileKeyId: uploaderParams.fileKeyId,
+                            objectId: uploaderParams.objectId,
+                            isConverted: true,
+                            videoUrl480: videoUrl480,
+                            thumbnail480: '',
+                            videoSize480: 0,
+                            videoUrl720: videoUrl720,
+                            thumbnail720: '',
+                            videoSize720: 0,
+                            videoDuration: 0,
+                            lang: uploaderParams.lang
+                        }));
+                        
                         $.lambda6({
                             operation: 'transcoder',
                             payload: {
@@ -113,20 +127,11 @@
                                 OutputKeyPrefix: outputKeyPrefix,
                                 Outputs: outputs,
                                 UserMetadata: {
-                                    "CallbackEndpoint": settings.transcoderCallbackEndpoint,
-                                    "CallbackParams": JSON.stringify({
-                                        fileKeyId: uploaderParams.fileKeyId,
-                                        objectId: uploaderParams.objectId,
-                                        isConverted: true,
-                                        videoUrl480: videoUrl480,
-                                        thumbnail480: '',
-                                        videoSize480: 0,
-                                        videoUrl720: videoUrl720,
-                                        thumbnail720: '',
-                                        videoSize720: 0,
-                                        videoDuration: 0,
-                                        lang: uploaderParams.lang
-                                    })
+                                    CallbackEndpoint: settings.transcoderCallbackEndpoint,
+                                    CallbackParams0: callbackParamsString.substr(0, 256),
+                                    CallbackParams1: callbackParamsString.substr(256, 256),
+                                    CallbackParams2: callbackParamsString.substr(512, 256),
+                                    CallbackParams3: callbackParamsString.substr(768, 256)
                                 },
                                 PipelineId: uploaderParams.pipelineId,
                             }
