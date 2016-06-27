@@ -57,6 +57,9 @@
             resume: {
                 enabled: true
             },
+            chunking: {
+                enabled: true
+            },
             multiple: uploaderParams.amountAllow > 1,
             validation: {
                 allowedExtensions: uploaderParams.extAllow.split(','),
