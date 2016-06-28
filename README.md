@@ -48,8 +48,10 @@ curl -H "Content-Type: application/json" -X POST -d "{\"operation\": \"echo\", \
 參考範例：
 
 ```
+<!-- jQuery -->
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+<!-- Fine Uploader -->
 <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/file-uploader/5.10.0/all.fine-uploader/fine-uploader-new.min.css">
 <script src="//cdnjs.cloudflare.com/ajax/libs/file-uploader/5.10.0/s3.jquery.fine-uploader/s3.jquery.fine-uploader.min.js"></script>
 ```
@@ -106,6 +108,7 @@ $('#fine-uploader').s3uploader({
     accessKey: AWS_ACCESS_KEY_ID,
     requestEndpoint: 'emvpdev.s3.amazonaws.com',
     signatureEndpoint: '/lambda/signature',
+    transcoderCallbackEndpoint: 'http://emvpdev.trunksys.com:3001/callback',
     uploaderParams: uploaderParams,
     callbacks: {
         onUploadSuccess: function(uploader, uploaderParams, callbackParams, responseJSON) {
