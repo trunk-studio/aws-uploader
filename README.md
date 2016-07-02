@@ -7,7 +7,7 @@ http://emvpdev.trunksys.com:3001/
 
 ## Server-side Implements
 
-後端程式需要提供 `/lambda/$operation` 的 POST 存取。
+後端程式需要提供 `/lambda/$operation` 的 POST 存取，負責處理 Lambda Request 轉發。
 
 * /lambda/echo
 * /lambda/transcoder
@@ -15,7 +15,7 @@ http://emvpdev.trunksys.com:3001/
 
 將收到的 POST 資料轉送至 AWS Lambda API Server。
 
-參考範例（使用 curl 指令存取）
+Lambda API Server 參考範例（使用 curl 指令存取）
 
 ```
 curl -H "Content-Type: application/json" -X POST -d "{\"operation\": \"echo\", \"payload\": \"Hello Lambda\"}" https://55z081wsq0.execute-api.ap-northeast-1.amazonaws.com/prod/s3upload-prod
@@ -36,6 +36,32 @@ curl -H "Content-Type: application/json" -X POST -d "{\"operation\": \"echo\", \
         ctx.body = { error: e };
       }
     });
+```
+
+Transcoder 影片轉檔作業完成後，會自動呼叫後端程式回寫資料庫。
+
+Callback Endpoint 必須是完整的 URL（包含 http:// 或 https://），例如：
+
+* http://網址/callback
+
+備註：前端呼叫 `$.s3uploader` 時指定 `transcoderCallbackEndpoint` 設定此 Callback Endpoint URL 參數。
+
+Callback 資料範例：
+
+```
+{
+  fileKeyId: 'f35801c4-be27-4728-b433-a5c82e3288d6',
+  objectId: '5195fd811f_en',
+  isConverted: true,
+  videoUrl480: 'https://dq8zej8azrytq.cloudfront.net/emvpcontent/a14057/v/f35801c4-be27-4728-b433-a5c82e3288d6/480/en/5195fd811f_en.mp4',
+  thumbnail480: 'https://dq8zej8azrytq.cloudfront.net/emvpcontent/a14057/v/f35801c4-be27-4728-b433-a5c82e3288d6/480/en/5195fd811f_en-1.png',
+  videoSize480: 12314135,
+  videoUrl720: 'https://dq8zej8azrytq.cloudfront.net/emvpcontent/a14057/v/f35801c4-be27-4728-b433-a5c82e3288d6/720/en/5195fd811f_en.mp4',
+  thumbnail720: 'https://dq8zej8azrytq.cloudfront.net/emvpcontent/a14057/v/f35801c4-be27-4728-b433-a5c82e3288d6/720/en/5195fd811f_en-1.png',
+  videoSize720: 35425452,
+  videoDuration: 282,
+  lang: 'en'
+}
 ```
 
 ## Front-end Implements

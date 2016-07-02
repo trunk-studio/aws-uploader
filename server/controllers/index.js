@@ -29,6 +29,10 @@ export default class Routes {
     publicRoute.get('/video', function(ctx){
       ctx.render('video', {accessKey: appConfig.accessKey});
     });
+    
+    publicRoute.get('/picture', function(ctx){
+      ctx.render('picture', {accessKey: appConfig.accessKey});
+    });
 
     publicRoute.post('/callback', async (ctx) => {
       console.log(ctx.request.body);
