@@ -16,7 +16,7 @@
             debug: false,
             accessKey: '----',
             requestEndpoint: 'emvpdev.s3.amazonaws.com',
-            signatureEndpoint: '/lambda/signature',
+            signatureEndpoint: '/login/lambda.ashx?op=signature',
             transcoderCallbackEndpoint: '',
             uploaderParams: {},
             callbacks: {}

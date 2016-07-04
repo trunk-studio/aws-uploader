@@ -49,6 +49,20 @@ export default class Routes {
         ctx.body = { error: e };
       }
     });
+    
+    publicRoute.get('/debug', async (ctx) => {
+      ctx.body = { result: ctx.query };
+    });
+    
+    publicRoute.post('/login/lambda.ashx', async (ctx) => {
+      try {
+        let res = await fetch(appConfig.lambdaApiEndpoint, { method: 'POST', body: JSON.stringify({operation: ctx.query.op, payload: ctx.request.body })});
+        ctx.body = await res.json();
+      }
+      catch (e) {
+        ctx.body = { error: e };
+      }
+    });
 
     app.use(publicRoute.middleware())
 
