@@ -48,6 +48,8 @@ block body
             uploaderParams: uploaderParams,
             callbacks: {
                 onUploadSuccess: function(uploader, uploaderParams, callbackParams, responseJSON) {
+                    console.log("=== UPLOAD SUCCESS ===");
+
                     $('#resultsContainer').text(JSON.stringify(callbackParams, null, 2));
                     // TODO: 呼叫後端將 callbackParams 回寫資料庫
                 },

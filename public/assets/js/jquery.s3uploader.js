@@ -127,21 +127,24 @@
                             
                             var outputKeyPrefix = 'emvpcontent/' + custmerIdPrefix + uploaderParams.custmerId + '/v/' + uploaderParams.fileKeyId + '/';
     
-                            var cloudfrontBaseUrl = 'https://' + uploaderParams.cdnUrl + '/' + outputKeyPrefix;
+                            var cloudfrontBaseUrl = 'https://' + uploaderParams.cdnUrl + '/'; // + outputKeyPrefix;
     
-                            var videoUrl480 = cloudfrontBaseUrl + '480/' + uploaderParams.lang + '/' + uploaderParams.objectId + '.mp4';
-                            var videoUrl720 = cloudfrontBaseUrl + '720/' + uploaderParams.lang + '/' + uploaderParams.objectId + '.mp4';
+                            //var videoUrl480 = cloudfrontBaseUrl + '480/' + uploaderParams.lang + '/' + uploaderParams.objectId + '.mp4';
+                            //var videoUrl720 = cloudfrontBaseUrl + '720/' + uploaderParams.lang + '/' + uploaderParams.objectId + '.mp4';
+                            
+                            var videoKeyPattern = outputKeyPrefix + '{resolutionKind}/' + uploaderParams.lang + '/' + uploaderParams.objectId + '.mp4';
                             
                             var callbackParamsString = window.btoa(JSON.stringify({
                                 fileKeyId: uploaderParams.fileKeyId,
                                 objectId: uploaderParams.objectId,
                                 isConverted: true,
-                                videoUrl480: videoUrl480,
+                                /* videoUrl480: videoUrl480,
                                 thumbnail480: '',
                                 videoSize480: 0,
                                 videoUrl720: videoUrl720,
                                 thumbnail720: '',
-                                videoSize720: 0,
+                                videoSize720: 0, */
+                                outputs: [],
                                 videoDuration: 0,
                                 lang: uploaderParams.lang
                             }));
@@ -156,6 +159,8 @@
                                     Outputs: outputs,
                                     UserMetadata: {
                                         CallbackEndpoint: settings.transcoderCallbackEndpoint,
+                                        CloudFrontBaseURL: window.btoa(cloudfrontBaseUrl),
+                                        VideoKeyPattern: window.btoa(videoKeyPattern),
                                         CallbackParams0: callbackParamsString.substr(0, 256),
                                         CallbackParams1: callbackParamsString.substr(256, 256),
                                         CallbackParams2: callbackParamsString.substr(512, 256),

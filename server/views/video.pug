@@ -52,11 +52,12 @@ block body
             debug: true,
             accessKey: AWS_ACCESS_KEY_ID,
             requestEndpoint: 'emvpdev.s3.amazonaws.com',
-            signatureEndpoint: '/lambda/signature',
+            signatureEndpoint: '/login/lambda.ashx?op=signature',
             transcoderCallbackEndpoint: 'http://emvpdev.trunksys.com:3001/callback',
             uploaderParams: uploaderParams,
             callbacks: {
                 onUploadSuccess: function(uploader, uploaderParams, callbackParams, responseJSON) {
+                    console.log("=== UPLOAD SUCCESS ===");
                     $('#resultsContainer').text(JSON.stringify(callbackParams, null, 2));
                     // TODO: 呼叫後端將 callbackParams 回寫資料庫
                 },
