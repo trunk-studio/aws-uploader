@@ -11,7 +11,8 @@
         return $.ajax({
             url: '/login/lambda.ashx?op=' + settings.operation,
             method: 'POST',
-            data: settings.payload,
+            data: JSON.stringify(settings.payload),
+            contentType: 'application/json; charset=utf-8',
             dataType: 'json'
         });
     };
