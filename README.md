@@ -3,7 +3,7 @@ S3 File Uploader Demo for StrategicSale
 
 Demo Site
 
-http://emvpdev.trunksys.com:3001/
+http://emvpdev.trunksys.com/
 
 ## Server-side Implements
 

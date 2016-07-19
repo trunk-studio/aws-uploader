@@ -48,7 +48,8 @@
                     
                     uploaderParams.objectId = uuid2.split('-').pop().substring(0, 10);
                     
-                    if (isVideo) {
+                    if (isVideo && uploaderParams.lang) {
+                        // lang not null
                         uploaderParams.objectId += ("_" + uploaderParams.lang);
                     }
                     
@@ -56,10 +57,17 @@
                     
                     var custmerIdPrefix = String.fromCharCode(97+uploaderParams.custmerId%26);
                     
-                    return isVideo ?
-                        'emvpupload/' + custmerIdPrefix + uploaderParams.custmerId + '/' + typePrefix + '/' +  uploaderParams.fileKeyId + '/' + uploaderParams.lang + '/raw.' + ext
-                        :
-                        'emvpcontent/' + custmerIdPrefix + uploaderParams.custmerId + '/' + typePrefix + '/' +  uploaderParams.fileKeyId + '.' + ext;
+                    if (isVideo) {
+                        if (uploaderParams.lang) {
+                            return 'emvpupload/' + custmerIdPrefix + uploaderParams.custmerId + '/' + typePrefix + '/' +  uploaderParams.fileKeyId + '/' + uploaderParams.lang + '/raw.' + ext;
+                        }
+                        else {
+                            return 'emvpupload/' + custmerIdPrefix + uploaderParams.custmerId + '/' + typePrefix + '/' +  uploaderParams.fileKeyId + '/raw.' + ext;                            
+                        }
+                    }
+                    else {
+                        return 'emvpcontent/' + custmerIdPrefix + uploaderParams.custmerId + '/' + typePrefix + '/' +  uploaderParams.fileKeyId + '.' + ext;
+                    }
                 },
                 acl: "public-read"
             },
@@ -115,11 +123,19 @@
     
                             for (var i = 0; i < uploaderParams.outputs.length; i++) {
                                 var output = uploaderParams.outputs[i];
-    
+                                
+                                let folder = output.resolutionKind + '/';
+                                
+                                if (uploaderParams.lang) {
+                                    folder += (uploaderParams.lang + '/');
+                                }
+                                
+                                let baseName = uploaderParams.objectId;
+                                
                                 outputs.push({
-                                    Key: output.resolutionKind + '/' + uploaderParams.lang + '/' + uploaderParams.objectId + '.mp4',
+                                    Key:  folder + baseName + '.mp4',
                                     PresetId: output.presetId,
-                                    ThumbnailPattern: output.resolutionKind + '/' + uploaderParams.lang + '/' + uploaderParams.objectId + '-{count}'
+                                    ThumbnailPattern: folder + baseName + '-{count}'
                                 });
                             }
                             
