@@ -148,7 +148,14 @@
                             //var videoUrl480 = cloudfrontBaseUrl + '480/' + uploaderParams.lang + '/' + uploaderParams.objectId + '.mp4';
                             //var videoUrl720 = cloudfrontBaseUrl + '720/' + uploaderParams.lang + '/' + uploaderParams.objectId + '.mp4';
                             
-                            var videoKeyPattern = outputKeyPrefix + '{resolutionKind}/' + uploaderParams.lang + '/' + uploaderParams.objectId + '.mp4';
+                            
+                            var videoKeyPattern = outputKeyPrefix + '{resolutionKind}/';
+                            
+                            if (uploaderParams.lang) {
+                                videoKeyPattern += (uploaderParams.lang + '/');
+                            }
+                            
+                            videoKeyPattern += (uploaderParams.objectId + '.mp4');
                             
                             var callbackParamsString = window.btoa(JSON.stringify({
                                 fileKeyId: uploaderParams.fileKeyId,
