@@ -24,6 +24,8 @@
         
         var target = $(this);
         var uploaderParams = settings.uploaderParams;
+        
+        var __uploaderParamsCache = {};
 
         var uploader = new qq.s3.FineUploader({
             debug: settings.debug,
@@ -37,36 +39,40 @@
             },
             objectProperties: {
                 key: function(fileId) {
-        
-                    var isVideo = (uploaderParams.filetype == 'video');
+                    
+                    console.log('Invoke objectProperties.key, fileId = ' + fileId);
+                    
+                    var _uploaderParams = __uploaderParamsCache[fileId] = jQuery.extend(true, {}, uploaderParams);
+
+                    var isVideo = (_uploaderParams.filetype == 'video');
                     var filename = uploader.getName(fileId);
                     var uuid = uploader.getUuid(fileId);
                     var uuid2 = generateUUID();
                     var ext = filename.substr(filename.lastIndexOf('.') + 1);
                     
-                    uploaderParams.fileKeyId = uuid;
+                    _uploaderParams.fileKeyId = uuid;
                     
-                    uploaderParams.objectId = uuid2.split('-').pop().substring(0, 10);
+                    _uploaderParams.objectId = uuid.split('-').pop().substring(0, 10);
                     
-                    if (isVideo && uploaderParams.lang) {
+                    if (isVideo && _uploaderParams.lang) {
                         // lang not null
-                        uploaderParams.objectId += ("_" + uploaderParams.lang);
+                        _uploaderParams.objectId += ("_" + _uploaderParams.lang);
                     }
                     
-                    var typePrefix = uploaderParams.filetype.substring(0, 1);
+                    var typePrefix = _uploaderParams.filetype.substring(0, 1);
                     
-                    var custmerIdPrefix = String.fromCharCode(97+uploaderParams.custmerId%26);
+                    var custmerIdPrefix = String.fromCharCode(97+_uploaderParams.custmerId%26);
                     
                     if (isVideo) {
-                        if (uploaderParams.lang) {
-                            return 'emvpupload/' + custmerIdPrefix + uploaderParams.custmerId + '/' + typePrefix + '/' +  uploaderParams.fileKeyId + '/' + uploaderParams.lang + '/raw.' + ext;
+                        if (_uploaderParams.lang) {
+                            return 'emvpupload/' + custmerIdPrefix + _uploaderParams.custmerId + '/' + typePrefix + '/' +  _uploaderParams.fileKeyId + '/' + _uploaderParams.lang + '/raw.' + ext;
                         }
                         else {
-                            return 'emvpupload/' + custmerIdPrefix + uploaderParams.custmerId + '/' + typePrefix + '/' +  uploaderParams.fileKeyId + '/raw.' + ext;                            
+                            return 'emvpupload/' + custmerIdPrefix + _uploaderParams.custmerId + '/' + typePrefix + '/' +  _uploaderParams.fileKeyId + '/raw.' + ext;                            
                         }
                     }
                     else {
-                        return 'emvpcontent/' + custmerIdPrefix + uploaderParams.custmerId + '/' + typePrefix + '/' +  uploaderParams.fileKeyId + '.' + ext;
+                        return 'emvpcontent/' + custmerIdPrefix + _uploaderParams.custmerId + '/' + typePrefix + '/' +  _uploaderParams.fileKeyId + '.' + ext;
                     }
                 },
                 acl: "public-read"
@@ -92,45 +98,49 @@
                     // on progress
                 },
                 onComplete: function(id, name, responseJSON, xhr) {
+                    
+                    console.log('Invoke onComplete, id = ' + id);
+                    
+                    var _uploaderParams = __uploaderParamsCache[id];
 
                     var callbackParams = {
-                        fileKeyId: uploaderParams.fileKeyId,
-                        objectId: uploaderParams.objectId,
+                        fileKeyId: _uploaderParams.fileKeyId,
+                        objectId: _uploaderParams.objectId,
                         createdAt: new Date(),
                         fileName: name,
                         fileSize: uploader.getSize(id),
                         isConverted: false
                     };
                     
-                    if (uploaderParams.filetype != 'video') {
+                    if (_uploaderParams.filetype != 'video') {
                         var ext = name.substr(name.lastIndexOf('.') + 1);
-                        var typePrefix = uploaderParams.filetype.substring(0, 1);
-                        var custmerIdPrefix = String.fromCharCode(97+uploaderParams.custmerId%26);
+                        var typePrefix = _uploaderParams.filetype.substring(0, 1);
+                        var custmerIdPrefix = String.fromCharCode(97+_uploaderParams.custmerId%26);
 
                         callbackParams.rowExt = ext;
-                        callbackParams.url = 'https://' + uploaderParams.cdnUrl + '/emvpcontent/' +
-                            custmerIdPrefix + uploaderParams.custmerId + '/' + typePrefix + '/' +  uploaderParams.fileKeyId + '.' + ext;
+                        callbackParams.url = 'https://' + _uploaderParams.cdnUrl + '/emvpcontent/' +
+                            custmerIdPrefix + _uploaderParams.custmerId + '/' + typePrefix + '/' +  _uploaderParams.fileKeyId + '.' + ext;
                     }
 
                     if (responseJSON.success) {
 
                         if (settings.callbacks.onUploadSuccess) {
-                            settings.callbacks.onUploadSuccess(uploader, uploaderParams, callbackParams, responseJSON);
+                            settings.callbacks.onUploadSuccess(uploader, _uploaderParams, callbackParams, responseJSON);
                         }
 
-                        if (uploaderParams.filetype == 'video') {
+                        if (_uploaderParams.filetype == 'video') {
                             var outputs = [];
     
-                            for (var i = 0; i < uploaderParams.outputs.length; i++) {
-                                var output = uploaderParams.outputs[i];
+                            for (var i = 0; i < _uploaderParams.outputs.length; i++) {
+                                var output = _uploaderParams.outputs[i];
                                 
                                 let folder = output.resolutionKind + '/';
                                 
-                                if (uploaderParams.lang) {
-                                    folder += (uploaderParams.lang + '/');
+                                if (_uploaderParams.lang) {
+                                    folder += (_uploaderParams.lang + '/');
                                 }
                                 
-                                let baseName = uploaderParams.objectId;
+                                let baseName = _uploaderParams.objectId;
                                 
                                 outputs.push({
                                     Key:  folder + baseName + '.mp4',
@@ -139,27 +149,27 @@
                                 });
                             }
                             
-                            var custmerIdPrefix = String.fromCharCode(97+uploaderParams.custmerId%26);
+                            var custmerIdPrefix = String.fromCharCode(97+_uploaderParams.custmerId%26);
                             
-                            var outputKeyPrefix = 'emvpcontent/' + custmerIdPrefix + uploaderParams.custmerId + '/v/' + uploaderParams.fileKeyId + '/';
+                            var outputKeyPrefix = 'emvpcontent/' + custmerIdPrefix + _uploaderParams.custmerId + '/v/' + _uploaderParams.fileKeyId + '/';
     
-                            var cloudfrontBaseUrl = 'https://' + uploaderParams.cdnUrl + '/'; // + outputKeyPrefix;
+                            var cloudfrontBaseUrl = 'https://' + _uploaderParams.cdnUrl + '/'; // + outputKeyPrefix;
     
-                            //var videoUrl480 = cloudfrontBaseUrl + '480/' + uploaderParams.lang + '/' + uploaderParams.objectId + '.mp4';
-                            //var videoUrl720 = cloudfrontBaseUrl + '720/' + uploaderParams.lang + '/' + uploaderParams.objectId + '.mp4';
+                            //var videoUrl480 = cloudfrontBaseUrl + '480/' + _uploaderParams.lang + '/' + _uploaderParams.objectId + '.mp4';
+                            //var videoUrl720 = cloudfrontBaseUrl + '720/' + _uploaderParams.lang + '/' + _uploaderParams.objectId + '.mp4';
                             
                             
                             var videoKeyPattern = outputKeyPrefix + '{resolutionKind}/';
                             
-                            if (uploaderParams.lang) {
-                                videoKeyPattern += (uploaderParams.lang + '/');
+                            if (_uploaderParams.lang) {
+                                videoKeyPattern += (_uploaderParams.lang + '/');
                             }
                             
-                            videoKeyPattern += (uploaderParams.objectId + '.mp4');
+                            videoKeyPattern += (_uploaderParams.objectId + '.mp4');
                             
                             var callbackParamsString = window.btoa(JSON.stringify({
-                                fileKeyId: uploaderParams.fileKeyId,
-                                objectId: uploaderParams.objectId,
+                                fileKeyId: _uploaderParams.fileKeyId,
+                                objectId: _uploaderParams.objectId,
                                 isConverted: true,
                                 /* videoUrl480: videoUrl480,
                                 thumbnail480: '',
@@ -169,7 +179,7 @@
                                 videoSize720: 0, */
                                 outputs: [],
                                 videoDuration: 0,
-                                lang: uploaderParams.lang
+                                lang: _uploaderParams.lang
                             }));
                             
                             $.lambda6({
@@ -189,14 +199,14 @@
                                         CallbackParams2: callbackParamsString.substr(512, 256),
                                         CallbackParams3: callbackParamsString.substr(768, 256)
                                     },
-                                    PipelineId: uploaderParams.pipelineId,
+                                    PipelineId: _uploaderParams.pipelineId,
                                 }
                             })
                             .done(function(data) {
                                 //alert('開始轉檔');
                                 
                                 if (settings.callbacks.onTranscoderBegin) {
-                                    settings.callbacks.onTranscoderBegin(uploader, uploaderParams, callbackParams, responseJSON);
+                                    settings.callbacks.onTranscoderBegin(uploader, _uploaderParams, callbackParams, responseJSON);
                                 }
                             });
                         }
@@ -205,7 +215,7 @@
                         //alert(responseJSON.error);
                         
                         if (settings.callbacks.onUploadError) {
-                            settings.callbacks.onUploadError(uploader, uploaderParams, callbackParams, responseJSON);
+                            settings.callbacks.onUploadError(uploader, _uploaderParams, callbackParams, responseJSON);
                         }
                     }
                 }

@@ -30,7 +30,7 @@ block body
             objectId: null,
             fileKeyId: null,
             extAllow: 'mpg,wmv,avi,mp4,mts,mov,m2p,dat,mkv,m4v,3gp,flv,mpeg,webm',
-            amountAllow: 1,
+            amountAllow: 2,
             sizeLimit: 2147483648,
             lang: null,    // options: 'en'
             resumeTime: 5,
@@ -58,7 +58,7 @@ block body
             callbacks: {
                 onUploadSuccess: function(uploader, uploaderParams, callbackParams, responseJSON) {
                     console.log("=== UPLOAD SUCCESS ===");
-                    $('#resultsContainer').text(JSON.stringify(callbackParams, null, 2));
+                    $('#resultsContainer').text($('#resultsContainer').text() + 'uploaderParams:\n' + JSON.stringify(uploaderParams, null, 2) + '\n\n' + 'callbackParams:\n' + JSON.stringify(callbackParams, null, 2) + '\n\n');
                     // TODO: 呼叫後端將 callbackParams 回寫資料庫
                 },
                 onUploadError: function(uploader, uploaderParams, callbackParams, responseJSON) {
