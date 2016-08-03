@@ -1,9 +1,11 @@
 S3 File Uploader Demo for StrategicSale
 ========================================
 
+修訂版本 2016/7/25
+
 Demo Site
 
-http://emvpdev.trunksys.com/
+* http://emvpdev.trunksys.com/
 
 ## Server-side Implements
 
@@ -53,13 +55,16 @@ Callback 資料範例：
   fileKeyId: 'f35801c4-be27-4728-b433-a5c82e3288d6',
   objectId: '5195fd811f_en',
   isConverted: true,
-  videoUrl480: 'https://dq8zej8azrytq.cloudfront.net/emvpcontent/a14057/v/f35801c4-be27-4728-b433-a5c82e3288d6/480/en/5195fd811f_en.mp4',
-  thumbnail480: 'https://dq8zej8azrytq.cloudfront.net/emvpcontent/a14057/v/f35801c4-be27-4728-b433-a5c82e3288d6/480/en/5195fd811f_en-1.png',
-  videoSize480: 12314135,
-  videoUrl720: 'https://dq8zej8azrytq.cloudfront.net/emvpcontent/a14057/v/f35801c4-be27-4728-b433-a5c82e3288d6/720/en/5195fd811f_en.mp4',
-  thumbnail720: 'https://dq8zej8azrytq.cloudfront.net/emvpcontent/a14057/v/f35801c4-be27-4728-b433-a5c82e3288d6/720/en/5195fd811f_en-1.png',
-  videoSize720: 35425452,
-  videoDuration: 282,
+  outputs:
+  [ { resolutionKind: '480',
+      videoSize: '209349',
+      thumbnail: 'https://d1owool32s2u8a.cloudfront.net/emvpcontent/r14057/v/b53986f3-a54d-4496-aa3d-94117908f532/480/94117908f5-00001.jpg',
+      videoUrl: 'https://d1owool32s2u8a.cloudfront.net/emvpcontent/r14057/v/b53986f3-a54d-4496-aa3d-94117908f532/480/94117908f5.mp4' },
+    { resolutionKind: '720',
+      videoSize: '600116',
+      thumbnail: 'https://d1owool32s2u8a.cloudfront.net/emvpcontent/r14057/v/b53986f3-a54d-4496-aa3d-94117908f532/720/94117908f5-00001.png',
+      videoUrl: 'https://d1owool32s2u8a.cloudfront.net/emvpcontent/r14057/v/b53986f3-a54d-4496-aa3d-94117908f532/720/94117908f5.mp4' } ],
+  videoDuration: 3,
   lang: 'en'
 }
 ```
@@ -120,6 +125,8 @@ var uploaderParams = {
 };
 ```
 
+備註：`lang` 可以設為 `null` 表示該影片不區分語系。
+
 放置上傳檔案功能區塊（HTML)。
 
 ```
@@ -133,7 +140,7 @@ $('#fine-uploader').s3uploader({
     debug: true,
     accessKey: AWS_ACCESS_KEY_ID,
     requestEndpoint: 'emvpdev.s3.amazonaws.com',
-    signatureEndpoint: '/lambda/signature',
+    signatureEndpoint: '/login/lambda.ashx?op=signature',
     transcoderCallbackEndpoint: 'http://emvpdev.trunksys.com:3001/callback',
     uploaderParams: uploaderParams,
     callbacks: {
