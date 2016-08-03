@@ -25,7 +25,7 @@ curl -H "Content-Type: application/json" -X POST -d "{\"operation\": \"echo\", \
 
 參考範例（Node.js + Koa）
 
-```
+```js
     // appConfig.lambdaApiEndpoint = https://55z081wsq0.execute-api.ap-northeast-1.amazonaws.com/prod/s3upload-prod
     
     publicRoute.post('/lambda/:operation', async (ctx) => {
@@ -50,7 +50,7 @@ Callback Endpoint 必須是完整的 URL（包含 http:// 或 https://），例�
 
 Callback 資料範例：
 
-```
+```js
 {
   fileKeyId: 'f35801c4-be27-4728-b433-a5c82e3288d6',
   objectId: '5195fd811f_en',
@@ -78,7 +78,7 @@ Callback 資料範例：
 
 參考範例：
 
-```
+```xml
 <!-- jQuery -->
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 
@@ -92,14 +92,14 @@ Callback 資料範例：
 * jquery.s3uploader.js
 * jquery.lambda6.js
 
-```
+```xml
 <script type="text/javascript" src="https://raw.githubusercontent.com/trunk-studio/aws-uploader-poc/master/public/assets/js/jquery.s3uploader.js"></script>
 <script type="text/javascript" src="https://raw.githubusercontent.com/trunk-studio/aws-uploader-poc/master/public/assets/js/jquery.lambda6.js"></script>
 ```
 
 在前端動態設定必要的 JS 參數。
 
-```
+```js
 var AWS_ACCESS_KEY_ID = 'AKIAJS4FV444UNYB5C4Q';
       
 var uploaderParams = {
@@ -135,7 +135,7 @@ var uploaderParams = {
 
 呼叫 jQuery Plugins 函數 `$.s3uploader` 產生上傳功能。
 
-```
+```js
 $('#fine-uploader').s3uploader({
     debug: true,
     accessKey: AWS_ACCESS_KEY_ID,
@@ -159,3 +159,45 @@ $('#fine-uploader').s3uploader({
     }
 });
 ```
+
+## AWS 設置概述
+
+* IAM 權限
+* S3 Bucket CORS
+* Elastic Transcoder 參數設置
+
+### IAM Policy Requested
+
+uploadap
+
+* AmazonSNSFullAccess
+* AmazonAPIGatewayAdministrator
+
+lambda_s3_exec_role
+
+* AmazonElasticTranscoderFullAccess
+
+## S3 Bucket Settings
+
+```
+Properties > Edit CORS Configuration
+```
+
+```xml
+    <CORSRule>
+        <AllowedOrigin>http://emvpdev.trunksys.com:3001</AllowedOrigin>
+        <AllowedMethod>GET</AllowedMethod>
+        <AllowedMethod>POST</AllowedMethod>
+        <AllowedMethod>PUT</AllowedMethod>
+        <MaxAgeSeconds>3000</MaxAgeSeconds>
+        <AllowedHeader>*</AllowedHeader>
+    </CORSRule>
+```
+
+## Transcoder 參數設置
+
+Pipelines
+
+* Add Permission, All Users, Open/Download
+  * Transcoded Files and Playlists
+  * Thumbnails
